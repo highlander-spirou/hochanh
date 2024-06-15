@@ -1,0 +1,17 @@
+---
+title: Global Accelerator
+description: asfhasfh
+sidebar:
+    order: 9
+---
+
+We learn about [CloudFront](/aws/global-service/cloudfront/). CloudFront utilize the Global Edge Network (bunch of AWS's data center around the world) to deliver content to the user faster. But not all web content can be cached. *Dashboard, Realtime app, ... website need to interact directly with the web server on every event*. 
+`Global Accelerator` utilize the Global Edge Network (just a reminder that regional POP are connected to each other and connected to the AWS Region via AWS PrivateLink). The diagram shows how Global Accelerator works
+
+![alt text](image-3.png)
+
+Rather than request directly to a server that locates in Singapore (ap-southeast-2), which is quite far from Việt Nam, the user request to the nearest POP (with locates in HCM city). From POP, the request travels via AWS PrivateLink to the web server in AZ. Then the response traverse the similar path.
+
+When creating a Global Accelerator, we are provided with a domain name. We can use Route 53 to map this domain to our registered domain as Alias record, then we can proceed to use Global Accelerator as normal.
+
+Global Accelerator only works with a static IP, EC2 instance and ALB/ELB. So application that need to expose to Global Accelerator should sits behind a Load balancer or assign a static IP

@@ -1,0 +1,33 @@
+---
+title: Web workers
+description: web worker
+sidebar:
+  badge:
+    text: new
+---
+
+## CPU Bound Task
+
+In IT terminology, application runs inside CPU, and it is call a process. There are many type of processes, but we can generalize into two types: CPU bound and non CPU bound. What is CPU bound task? It is the task (process) that claim a part of CPU (which is called `Core`) to run it, and block all other tasks from claiming the same core until it is done. 
+
+Modern CPUs, with the help of hyperthreading/SMT (Intel/AMD correspondingly), can split the single core into smaller virtual cores (vCPU), potentially reaching 4-8 vCPUs per core. It means that at the same time, we can process 4 to 8 videos at the same time.
+
+*Let's say you are building your own ChatGPT. It takes 1.5s for 500 words to passthrough the neural network. So, if we request a 1500 words, we need 4.5s. If we have 3 vCPUs, and we are processing 4 paragraphs (the length are 1500, 1700, 3000 and 2000 words), then the minimum "dead-lag" of our application is 4.5 seconds, and the total "dead-lag" time for 3 vCPUs is 3500*
+
+![alt text](image-2.png)
+
+
+## Non CPU Bound Task
+
+In some cases, we don't actually process the data in our CPU, we just asking other services to process the task for us. All we got to do is to compose the request, send them to another service, sit there and wait for the response to comeback. This is `Non CPU bound task`, since we do not processing anything. Non CPU bound task runs inside of `CPU Threads` rather than CPU cores. In a CPU there are thousand of threads, and each threads can wait upto dozen of tasks. 
+
+Non CPU bound task are usually API calls (either HTTP to another web service, or TCP call to database)
+
+
+## Web worker
+
+Web servers are just applications, so they occupied one CPU core. It means that if we have a web server running ChatGPT with 3 vCPUs, the capacity of the actual ChatGPT application is reduces to 2 concurrent processes. When the two cores are being occupied, the web server freezes. It cannot process more paragraphs, nor doing any other activities that are CPU bound  until one of the vCPU is done running. This rather unrealistic, since a web server needs to process many request at the same time, regardless that they are CPU bounded or not.
+
+This post the need to scale the web servers. Either we buff up the number of vCPUs (vertical scaling) or add more machine (horizontal scaling). But here's the thing. Modern web servers are complex, they are the mixed of CPU bound task (like ChatGPT application) combines with non CPU bound task (database CRUD). Scaling the whole web server meaning we waste a lot of money on both CPU and Non CPU bound task when we only need to increase CPU bound capacity. 
+
+*Only if there is a way to separate the web server into two parts based on process types 🤔*. There is, and it called `worker`. A worker is a computer that independent from the web server. They usually host CPU bound task that claim CPU cores, and takes longer time to execute. By off loading the CPU bound task to the worker, the web server only contains Non CPU bound task. This makes website extremely fast, as we recall from previous section, we can handle thousands upto millions of concurrent requests. This is more realistics, because now we can save money by only need to scale the web workers, not the whole web server anymore. 

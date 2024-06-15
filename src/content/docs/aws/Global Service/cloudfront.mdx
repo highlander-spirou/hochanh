@@ -1,0 +1,45 @@
+---
+title: AWS CloudFront
+description: asfhasfh
+sidebar:
+    order: 8
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+## Content Delivery Network (CDN)
+
+[Detail article about CDN here](https://www.cloudflare.com/learning/cdn/what-is-a-cdn/)
+
+Websites usually contains static contents. The word static means that things don't change. HTML, CSS, JS and Images/Videos that served on a website does not change over time - unlike things that change over time like databases.
+
+When serving these static contents, modern web architect utilize servers called Content Delivery Network (CDN). CDN are python dictionaries, you put your URL as key and your static content as value. 
+
+**How can CDN helps reduce waiting time?**
+
+CDN are servers (or data center - the term is interchangeably in this context). CDN are first class citizen of a global network infrastructures called `Internet exchange point` (IXP). IXP directly connect ISP to CDN, and CDN links to each other to form a network. *Let's say a user in Vietnam request a Tiktok Video that are cached (saved) on CDN. The flow is described below*
+
+![alt text](image-2.png)
+
+1. This user make a request to a URL, the request flows to ISP (contains DNS Resolver) to Tiktok IP
+2. Tiktok DNS Name returns to the DNS Resolver the IP (which is the CDN's IP)
+3. ISP go to the CDN's IP to get the contents. Utilizing IXP, this connection is very fast
+4. Return the cache content to the user.
+
+## AWS CloudFront
+
+AWS CloudFront is a CDN. CloudFront utilize [Global Network Edge](/aws/infrastructure/) as CDN servers. AWS CloudFront cache content via HTTP request (which directly place the content inside of CloudFront) or hook to an AWS service (like S3) so that CloudFront can automatically cache the content.
+
+Internally, CloudFront uses HTTP with [Cache-control](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control) to communicate with the AWS services.
+
+When creating CloudFront, we create a `CloudFront Distribution`. Content from the origin, via `Regional Edge Caches (RECs)`, distribute the content to multiple POPs around the world. CloudFront Distribution also gives us a domain name. This domain name is a Alias record that mapped to all the distributed POP with latency policy. [Review the Route 53 if you do not understand anything](/aws/global-service/route-53/). We can create an **Alias record** from Route 53 to map our custom domain with the CloudFront Distribution domain name. 
+
+## Cache invalidation
+
+We already know that CloudFront uses HTTP with Cache-control header to control the CDN cache policy. Let's summarize!
+
+Cache-control cache the whole HTTP response to disk - this includes the URL query, the URL params as well as the response body - this is our CloudFront cache content. In Cache-control header, we can set the `max-age` parameter, which is the time the HTTP request get the data from the disk rather than the origin server. By default, the max-cache of CloudFront is set to 24h. *Set the max-age too short, and we wastefully making unnecessary request to the origin. Set the max-age too long, and we can reflect the changes on the server*. When the time is up, CloudFront send a revalidate request to the origin server. This HTTP request is special, because it contains a HTTP header call `ETag`. This tag is used to compare with the version from the origin, if the tag is identical (meaning the content is not change) - the origin server response with **304 - Not modified** response, and CloudFront caches the content for *x* more minutes. If the content changes, the **200 - OK** response is sent alongside with new content. If the content is deleted, the **404 - Not found** is sent, and the cached content is deleted from the CloudFront.
+
+Within the cached time, content cannot be modified. But we can manually invalidate the cached content from CloudFront distribution by sending HTTP request to a special URL path from the CloudFront domain name.
+
+There are only hundred of POPs around the world. Although it seems a lot, for the amount of content that needs to be distributed to these POP, that just mere little. To work these problem out, CloudFront infrastructure are divided into `Hot zones` and `Cold zones`. `Hot zones` are POPs, they have higher network bandwidth, and used to serve popular content that access frequently. When the content becomes less popular, the moved to `Cold zones`. `Cold zones` are `RECs` or POPs that situated near RECs. RECs has higher cached capacity (higher disk and RAM space) but further to the user, so that the latency is increased.
