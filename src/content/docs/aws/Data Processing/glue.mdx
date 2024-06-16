@@ -1,0 +1,29 @@
+---
+title: AWS Glue
+description: glue
+sidebar:
+    badge:
+        text: new
+---
+
+AWS Glue is a serverless data integration service. Under the hood, AWS Glue is an Spark cluster that AWS managed. Sounds familiar? Yes, that's the same description as AWS EMR. What's the difference? When to use what?
+
+In AWS EMR, you publish your own Spark job, either in Scala/Java(either in a compiled .jar or uncompiled .scala) or PySpark in .py file. If python is used, dependencies are upload in S3, and command to point to the environment must be specify in the runtime environment.
+
+AWS Glue is for lazy people (or tech illiterate). They are also Spark, but you don't control the environment. In Glue, you specify the source and sink, and template transformation, and the code automatically generates for you. You can add some custom logic, but external dependencies are strictly not allow. 
+
+To sum up, AWS Glue is a strict opinionated Spark that created the code for you, based on the condition you specify, while EMR is the bring-your-own-code service.
+
+## Data catalog
+
+Data catalog is a metadata store [Check ETL article](/aws/data-processing/etl/). AWS Glue use the Data catalog to autogenerate the code for the source. Glue use Iceberg or HMS as metadata store.
+
+You can create a data catalog for the source manually, or using the Crawler for auto detection for some known service (Relational Database, DynamoDb, ...). In the background, Glue query these database using `"SELECT schema_name FROM information_schema.schemata"`. This may be the best feature of Glue, where you can setup and intergrates a Data lakehouse service automatically.
+
+## Job
+
+Job are Spark. This is created automatically after you specify the source, sink, create the data catalog for the source/sink and select addition transformation method. Glue creates a PySpark file for you, so you can validate the script, before running them.
+
+## Scheduler
+
+Glue provides its internal job scheduler, but you can always trigger them using Apache Airflow
