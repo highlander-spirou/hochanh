@@ -1,0 +1,33 @@
+---
+title: AWS Kinesis
+description: kinesis
+sidebar:
+    badge:
+        text: new
+---
+import { Aside } from '@astrojs/starlight/components';
+
+`AWS Kinesis` is an all in one solution for stream processing. They includes three main services: `Kinesis Data Stream`, `Kinesis Firehose` and `Managed Flink Service` (renamed from `Kinesis Data Analysis`).
+
+## Kinesis Data Stream
+
+Kinesis data stream is a forked of Apache Kafka, that ables to natively connects with most of AWS services. There are three ways to stream data into Kinesis Data Stream:
+
+**1. Amazon Kinesis Agent**
+
+This is a Java app, that watches series of log files. Application append data into the log file, and the new data automatically sends to Kinesis Data Stream topic.
+
+**2. AWS SDK for Java**
+
+If you have a backend in Java (Spring boot), you can use the Java SDK to stream the data to Kinesis (or you create an external service)
+
+**3. AWS Kinesis Producer Library (KPL)**
+
+This is the same as Kinesis Agent. It is usually installed in an EC2, that send pseudo packet to test Kinesis
+
+
+There are three services that is used for Kinesis Data Stream consumers, that is `Apache Flink`, `Kinesis Firehose` and `Kinesis Client Library (KCL)`. Flink is simple, it is a cluster of stream processing. KCL is like KPl, but for client EC2 machine.
+
+## Kinesis Firehose
+
+Kinesis is an no code environment for stream sinking. It takes a stream source (most likely Kinesis Data Stream) and dump the data to an AWS Service as sink. If you want a custom transformation, Kinesis triggers Lambda function. [See the template](https://docs.aws.amazon.com/lambda/latest/dg/services-kinesisfirehose.html)

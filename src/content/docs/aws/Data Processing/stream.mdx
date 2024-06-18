@@ -52,3 +52,39 @@ Real time processing is called Stream processing because the the data comes into
 
 You may find the real time processing familiar. You are right, it is closely related to Event-driven Architect. In fact, the stream processing follows the same architecture principle as the Event-driven architect, just different technologies being implemented.
 
+![alt text](image-10.png)
+
+### Legacy streaming architecture
+
+The heart of legacy streaming architecture is web socket.
+
+![alt text](image-12.png)
+
+Each connection from the client to the backend is a socket connection. Socket implements a channel that does not close between the two entities (frontend and backend). The client subscribe to a channel which implement in a web framework. Inside of the channel of the backend, an ORM is communicates to the database. When one client perform an action to a database, it goes through the web socket's channel to the ORM. The ORM proxies the request to the database, and cascade the new status of the database to all the clients. Hence, all the clients subsribe to the channel receive real-time updates.
+
+![alt text](image-11.png)
+
+### Streaming source broker
+
+Using a backend as stream mediator has its pros and cons. It has advantage of being simple, low cost, but all the client has to connects to the same machine. When the flow of data increases, as well as the number of connectors increases, the machine becomes overloaded. This post the need to have a centralize place to connects the client and the source. Inspired by Event Driven Architecture, streaming broker is born.
+
+The most notorious streaming broker is Kafka. Using Kafka, the client (or producer) can inject the data in streaming fashion or non-streaming fashion. In Kafka, the connectors (sink/stream process) complies to `Kafka Connectors API` to receive new data flow into `Kafka Topics`.
+
+![alt text](image-13.png)
+
+### Streaming Processors
+
+Streaming processors takes the data from the streaming source (most likely to be Kafka), process and direct them to a `Sink`.
+
+Stream processor can be a single machine that with Kafka API to continously pulls the data from Kafka to process (worker node), to a cluster of machines that process the data based on the volume.
+
+The two most famous stream processor cluster is `Spark` and `Flink`. Spark doesn't have native polling API, so they microbatching the Kafka topic, while `Flink` use native polling signals. 
+
+The choice of Spark or Flink can be difficult, since each provides different code. `Apache Beam` is unifying language to write stream processing logic, and it will getting transpile to native `Spark` or `Flink` job. 
+
+<Aside>
+
+Apache Beam is especially needed for non-java developer, since Flink is java only (needs .jar file), so we need Beam to able to write code in any language, then transpile them to .jar file
+
+</Aside>
+

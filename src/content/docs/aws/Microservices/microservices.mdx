@@ -1,0 +1,38 @@
+---
+title: Microservices
+description: microservices
+---
+import { Aside } from '@astrojs/starlight/components';
+
+
+Monolithic services is when you develop a web server with only one web framework (FastAPI, Express, Spring Boot, ...). When you have a simple web with only few routers, minimum requirements, this architecture works fine. However, one web server does not covers all the case. 
+
+*You are building an e-commerce app using Express. Now you are implement Machine Learning to enhance user experience. 99% of all machine learning code are written in Python. In this case, you either have to rewrite all your Express app to Python, or implement an external service written in Python to host the machine learning code. Of course the second choice is the only right choice. As you grow your business, you find out that there are more business logic that does not fit into your original monolithic app, so you need more external services. At the end of the day, your application becomes a hive of services - interconnecting one to another to solve your requirements*
+
+<Aside>
+
+Microservices architecture is the where you have multiple services works together to form an application. Each service has difference functionalities (and they don't overlap with each other), and they communicate with each other to fullfill a request.
+
+</Aside>
+
+
+<Aside type="caution">
+  It is first need to state that building a microservice from ground up is the worst decision in human history! Build a monolithic app, only where the business logic cannot be implemented in the web server, build an external service to wrap that logic
+</Aside>
+
+
+The reason microservices is getting popular is the standardize of [**Event-driven architecture**](/aws/event-driven/message-queue/). In this architecture, we allow our main application to scale independently from the CPU heavy tasks. In hyper applications (Tiktok, Facebook, Shopee, ...), the access of client is unimaginably high, leading to literal "traffic jam" in network - since all traffic flows to the same monolithic server. By using microservices, different request are route to different service, reducing the traffic.
+
+<Aside type="caution">
+  Again, the traffic problem can be solve by increasing the number of web server. Recall from the [web worker](/others/web-workers/) that web servers are mostly thread-based app, which are very efficient to handle concurrent requests. If your application does not as the same scale as Fortune 500 companies, do not consider microservices to solve traffic problem! 
+</Aside>
+
+
+## Microservice architecture
+
+In microservice principle, one service does not need to know about another service underlying status (what framework are they, how many instances the service has, ...). The service only need to ensure that the service is available and open for communication. With that principle, each service can scale independently just like event-driven architecture. To enforce the principle, there are 2 terms that needs to fullfill:
+
+1. Each service in microservice must has a single entry point - a single domain name if using HTTP, or all instances in a single service must connect to a single queue if using message queue
+2. You need a `Service Discovery` app to coordinates the communication between services. Service Discovery ensures the service is healthy and open to connection, and ensures the services is properly registered to a the microservices network (block external request to gaining confidential information exchanging within the network)
+
+The most standard microservice architecture must be `Kubernetes (k8s)`. K8s includes a control plane, which main principle is to manage the whole microservices (including `Service Discovery`). The routing and load balancing is done by `Service` component - this helps to expose different service to their according entry point. Individual service is called `Deployment`, and they physically deploys to the k8s `Node`. K8s is a container runtime, so, the `Node` with virtualize its hardware to run the containers - a virtualize hardware that is running container(s) is called `Pod`. All the other Microservice offers by the cloud will follows somewhat the same as this architecture, and I will try to map all the AWS services to match the k8s analogy!
