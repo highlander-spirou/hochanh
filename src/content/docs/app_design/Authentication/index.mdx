@@ -1,0 +1,43 @@
+---
+title: Introduction
+description: auth
+sidebar:
+    badge:
+        text: new
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+There's a lot of ways to build a web with authentication. `Laravel JetStream` is a good starter. It provides all UI and features for us to start doing authentication. Unluckily, PHP sucks! The language syntax is weird (less weird than Javascript, but since JS is a de facto language, we have to shut up and deal with it), the extensible is very limited. Let's reverse engineer all the features Jetstream has to offers, so that we can opt-in to other great backend service - like Spring, FastAPI, NestJS.
+
+In this project, I will use Express. Express is very declarative, meaning we have to manually write code for everything! This helps building a deeper understanding about **Authentication (Authn)** and **Authorization (Authz)** process. 
+
+`Laravel Jetstream` provides an out-of-the-box services for managing the Authn and Authz process. These includes
+
+1. Register & Login UI
+2. Email verification
+3. More Magic links feature
+4. Browser session management 
+5. Two-factor authentication
+6. Role-base authorization with Teams
+
+In real-life scenario, we have many, many authentications method to register an account. 
+
+1. **Simple username-password**: This is the most basic form. People register a username (most often is also an email account), and a password. This method is simple to implement, but it is the most vulnerable method. Therefore, this method usually hooked with many other securities measure to protect the account, making it incrementally complex
+2. **Email service**: Rather than implementing the authentication method on your own, we can leverage big companies securities measures (like email service) to manage the account for us. In this method, we actually register our email to the authentication process. If we able to login to out email, we can login to our application. It is that's simple!
+3. **Single Sign-In**: This method is much much simplier. Rather than have to login into the browser, we can send what is called a magic link to the user email or telephone. With the magic link, we can actually remotely authenticate the user.
+
+Here, we will start from simple username-password, but slowly move-on to more advance case
+
+
+
+
+## Choice of session
+
+There are three choice of sessions based on the use cases:
+
+1. **In-memory session**: This is a data-structure typically a hash map. This is the fastest and most secure method for authz. Since the data is hold within the server, the data is secure.
+2. **Using a dedicated session database**: In a microservice architecture, we do not have the priviledge to hold the session data in-memory. So we have to use a dedicated database to distribute the session. The session database must be ACID-compliance, esspecially `read consistency`. 
+3. **JWT**: The client session is a newer method to implement session. This use JWT hashing algorithm to includes the authz data within the client instead of the server. Using a hashing algorithm, we make sure our data is securely saved within the client's browser. When we make a request, we include the payload as `authorization` header. Using this method, we can use the client session with distributed system, without the need of a dedicated database.
+
+This tutorial will use the JWT method! [The github branch for this tutorial here.](https://github.com/highlander-spirou/authnz/tree/route-guard)

@@ -1,0 +1,29 @@
+---
+title: Basic Java
+description: java rest
+---
+
+## Entry point
+
+Mọi ứng dụng java đều yêu cầu 1 entry point là `public static void main(String[] args)` (ko có ngoại lệ).
+
+Mọi entry point đều expect nằm trong `src/java/com.<main_package_name>.<main_class>`. 
+
+Trong entry point, ta decorate entry point bằng `@SpringBootApplication`. This is all magic happens. 
+
+Tóm lại, 1 entry point cho spring boot web server looks like this:
+
+<iframe
+  src="https://carbon.now.sh/embed?bg=rgba%28171%2C+184%2C+195%2C+1%29&t=seti&wt=none&l=text%2Fx-java&width=625.5&ds=false&dsyoff=20px&dsblur=68px&wc=true&wa=true&pv=8px&ph=16px&ln=true&fl=1&fm=Hack&fs=14px&lh=133%25&si=false&es=2x&wm=false&code=package%2520com.authnz.authnz%253B%250A%250Aimport%2520org.springframework.boot.SpringApplication%253B%250Aimport%2520org.springframework.boot.autoconfigure.SpringBootApplication%253B%250A%250A%2540SpringBootApplication%250Apublic%2520class%2520AuthnzApplication%2520%257B%250A%250A%2509public%2520static%2520void%2520main%28String%255B%255D%2520args%29%2520%257B%250A%2509%2509SpringApplication.run%28AuthnzApplication.class%252C%2520args%29%253B%250A%2509%257D%250A%250A%257D"
+  style="width: 655px; height: 315px; border:0; transform: scale(1); overflow:hidden;"
+  sandbox="allow-scripts allow-same-origin">
+</iframe>
+
+## Controller và route registration
+
+Khi sử dụng web framework mà ko có dependency injection, ta phải ghi danh và manage toàn bộ route thủ công. Tuy nhiên, do sử dụng depdendency injection framework, ta ko cần quan tâm. 
+
+Để thêm 1 route (nhóm route) mới, ta decorate class bằng `@RestController`. Nhớ cái entry point đc decorate bằng `@SpringBootApplication` ko? Khi instantiate, nó sẽ parse toàn bộ project, kiếm toàn bộ các class đc decorate bằng `@RestController` và tự động register nó bằng api endpoint. Khi đã quen, ta chỉ cần copy paste 1 controller boilerplate và bắt đầu viết luôn (skip configuration step - which is the most annoying step for production)
+
+Lưu ý, khi viết controller và method của nó, ta expect brain-dead. Meaning mọi naming phải theo convention, ko đc khác biệt.
+

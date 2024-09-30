@@ -1,0 +1,25 @@
+---
+title: Device Activity
+description: auth
+sidebar:
+    badge:
+        text: new
+---
+
+While the user's data is centralize, the client is scattered. The first part of protecting the user's data is allow the user to track their device activity - what device that are currently login, what activities have been conducted on which devices. Device Activity helps to restrict compromised refresh-token.
+
+## Online status
+
+Online status is the first thing the devs has to implement on Device Activity. This helps the user to easily identify the device they are have logged in. Three things we must capture in the Online status tracking are:
+
+- Device type (Platform type (Mobile | Desktop), OS, browser type)
+- The geolocation of the device
+- The lastest activity.
+
+**The device type** is the most simple one to record. On each and every request, the device type is encoded within the HTTP header, so we can extract this information.
+**The geolocation** is a one-time thing. When the user first login, we deliberately ask them for the permission to access the Location API to record the geolocation of the device. For the `latest activity` tracking, we can simply update the activity of the user everytime we renew an access token.
+
+## Protect login with extra step
+
+New application very conservative about the new device that the user try to login. To minimizing imposter login, some apps may requires extra confirmation step. The two methods namely MFA and old device confirmation. For MFA, an OTP or magic link is sent to the user's email/phone number. For old device confirmation, an OTP is created on the old devices, that the user must use an old device that have logged in to confirm the code. 
+

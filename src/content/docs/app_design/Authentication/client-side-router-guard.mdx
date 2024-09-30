@@ -1,0 +1,17 @@
+---
+title: Client-side Router Guard
+description: client-side router guard
+sidebar:
+  badge:
+    text: new
+---
+
+**This section is for React Router and React Query only. Skip if you don't implement the follow stack**
+
+
+When using React Router combines with React Query, there are cases that these APIs overlap: the action API from React Router and the useMutation hooks from React Query. Although they perform identical task: perform request to server that leads to side-effect (requests like POST, PUT, DELETE that may change the data, and need to invalidate the data), they are different in one core differences: **Page transition**.
+
+Action API needs full page transition, including reloading all the loader API from a page. `useMutation`, as a nature of being a hook only, does not perform any page navigation. This distinct behaviour makes it easy to determine which API to do: 
+
+- If the request will leads to other page, like *Login, Logout, ...* request, use action API
+- If the page has many forms, that use to change a specific piece of data (*edit page, ...*), use `useMutation` 

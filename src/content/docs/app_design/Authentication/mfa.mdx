@@ -1,0 +1,19 @@
+---
+title: Multi Factor Authentication
+description: auth
+sidebar:
+    badge:
+        text: new
+---
+
+In the previous article, we have implement Access Token and Refresh Token pair for authentication. One of the merit of this approach is helps minimizing the damages when the tokens are being compromised. That being said, in the 5-minute of having total control, the hacker could deal some devastating actions: *Like transfer all the money from the account*.
+
+Application that have sensitive data needs to eliminate any threats, even when the token is being compromised. And that is when **Multi-factor authentication (MFA)** comes to help. Using MFA (and clever authorization design), we can extends the lifetime of access-token, without sacrificing the security of the application.
+
+## 1. Classical MFA
+
+Classical MFA is referred as an external provider, usually an email or a phone number, that in the posession of the user. When critical request is sent, being being process by the server, we need to provide a One-time Password (OTP) that sent to the provider for extra security
+
+## 2. Biometric MFA
+
+Although classical MFA is secure - since the odds of the hacker having both the tokens and the provider assets is extremely low, the chance is not zero. Email and phone OTP can easily be scammed, so application needs a more secure method: Biometrics. With the rise of devices with Biometric drivers, application nowaday will rely on these unique distinction to secure the user's sensitive data.

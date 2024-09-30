@@ -58,6 +58,10 @@ export default defineConfig({
           autogenerate: { directory: "datastructure" },
         },
         {
+          label: "Application Design",
+          autogenerate: { directory: "app_design" },
+        },
+        {
           label: "Others",
           autogenerate: { directory: "others" },
         },

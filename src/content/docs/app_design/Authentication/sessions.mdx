@@ -1,0 +1,51 @@
+---
+title: 4. User session
+description: login
+sidebar:
+  badge:
+    text: new
+---
+
+import { Aside } from "@astrojs/starlight/components";
+import { FileTree } from "@astrojs/starlight/components";
+import { Steps } from "@astrojs/starlight/components";
+import { Tabs, TabItem } from "@astrojs/starlight/components";
+import CollapseComponent from "@components/collapse.astro";
+
+<ul class="steps steps-vertical">
+  <li class="step step-primary">Register & Login UI</li>
+  <li class="step step-primary">Magic Link</li>
+  <li class="step step-primary">**⭐ Browser session management**</li>
+  <li class="step">Two-factor authentication</li>
+  <li class="step">Role-base authorization with Teams</li>
+</ul>
+
+Let's move on to another feature, that is user session management. In the server-side application, the session is holds within the server. In client-side, it is held within cookie or auth-header. The biggest security risk that the token has is that they are too powerfull. The session save the id of the user, bypass all the security checks. Once compromise, the session token can be use to do literally anything to the database.
+
+Session management doesn't deal with the secure of the token (the last three article does), it does with the fact that what should be done when the token has been compromised?
+
+Server-side token is simple, we just revoke the token. For client-side token (like our HTTP-only cookie) shit gets complicated. There's no way we can revoke the created token. In order to solve this problem client-side, we have to get back to the good-old server-side session.
+
+Rather than returning a single session token directly to the client, we create two token, a `refresh token` and an `access token`. `Access token` is just the same as the session token we used to work with. The only difference is that the `access token` has a much shorter life span, about 15 mins or less. A `refresh token` is a new concept. This token is the server-side token. When sign a token (during login flow), a pair of `refresh token` is created - client one and server ones. The server ones is saved within the database. The client is sent back to the user. 
+
+The authentication flow within the `user-session-guard` is also modified. Rather than just checking for the validity of the `access token` (which is too powerful), we need to check for a pair of token. The `access token` is first checked. If the `access token` is expired, the `refresh token` is checked. If the `refresh token` is valid, create a new short-lived `access token` is created.
+
+Why going through such complex design? As we are saying, the design is to deal with compromising. The access token is very short-lived, so if it is compromise, we can make sure that hacker doesn't have too much freedom. (It still bad, but 15 minutes is not as bad as 8 hours!)
+
+<Aside>
+
+The lesser the `access-token` time, the more the secure this design. However, this cost more read query from the database, pressure the performance of the whole application 
+
+</Aside>
+
+
+<Aside>
+
+Session database is best to be a memory database (like Redis, Memcache) or any read-consistence database, since this database will be bombarded with read query. Using memory database, we gets access to `Time-to-live (TTL)` feature, automatically remove dangling expired key, helping with read performance 
+
+</Aside>
+
+## 1. Remember me
+
+The first step 
+

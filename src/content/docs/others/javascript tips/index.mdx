@@ -1,0 +1,36 @@
+---
+title: Javascript Tips and Tricks
+description: Javascript Tips and Tricks
+---
+
+## Generic type based on callback result
+
+Here in the example, we created a generic HTTPHandler function. This function returns whatever inside of the callback function.
+
+However, the returns type is always `any`. **This tip helps to type the generic function result according to the return type of the inner callback function**
+
+```ts
+export const HTTPHandler = async <T>(
+  callbackFn: () => Promise<T>
+): Promise<{ data: T | null; error: HTTPErrorType | null }> => {
+  try {
+    const data = await callbackFn();
+    return { data, error: null };
+  } catch (error) {
+    // Do something
+  }
+};
+```
+## Remove key from object if value is nullish
+
+In this example, we remove the `name` key value if its value is null.
+
+```ts
+const submitValue = {
+    email: values.email,
+    password: values.password,
+    ...(values.name && { name: values.name }),
+};
+```
+
+
